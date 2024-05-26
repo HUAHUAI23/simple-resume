@@ -108,16 +108,17 @@ const Rating = ({ level }: RatingProps) => (
 type LinkProps = {
   url: URL;
   icon?: React.ReactNode;
+  iconOnRight?: boolean;
   label?: string;
   className?: string;
 };
 
-const Link = ({ url, icon, label, className }: LinkProps) => {
+const Link = ({ url, icon, iconOnRight, label, className }: LinkProps) => {
   if (!isUrl(url.href)) return null;
 
   return (
     <div className="flex items-center gap-x-1.5">
-      {icon ?? <i className="ph ph-bold ph-link text-primary" />}
+      {!iconOnRight && (icon ?? <i className="ph ph-bold ph-link text-primary" />)}
       <a
         href={url.href}
         target="_blank"
@@ -126,7 +127,29 @@ const Link = ({ url, icon, label, className }: LinkProps) => {
       >
         {label ?? (url.label || url.href)}
       </a>
+      {iconOnRight && (icon ?? <i className="ph ph-bold ph-link text-primary" />)}
     </div>
+  );
+};
+
+type LinkedEntityProps = {
+  name: string;
+  url: URL;
+  separateLinks: boolean;
+  className?: string;
+};
+
+const LinkedEntity = ({ name, url, separateLinks, className }: LinkedEntityProps) => {
+  return !separateLinks && isUrl(url.href) ? (
+    <Link
+      url={url}
+      label={name}
+      icon={<i className="ph ph-bold ph-globe text-primary" />}
+      iconOnRight={true}
+      className={className}
+    />
+  ) : (
+    <div className={className}>{name}</div>
   );
 };
 
@@ -173,7 +196,7 @@ const Section = <T,>({
               <div key={item.id} className={cn("space-y-2", className)}>
                 <div>
                   {children?.(item as T)}
-                  {url !== undefined && <Link url={url} />}
+                  {url !== undefined && section.separateLinks && <Link url={url} />}
                 </div>
 
                 {summary !== undefined && !isEmptyString(summary) && (
@@ -218,7 +241,7 @@ const Profiles = () => {
           ) : (
             <p>{item.username}</p>
           )}
-          <p className="text-sm">{item.network}</p>
+          {!item.icon && <p className="text-sm">{item.network}</p>}
         </div>
       )}
     </Section>
@@ -233,7 +256,12 @@ const Experience = () => {
       {(item) => (
         <div className="flex items-start justify-between">
           <div className="text-left">
-            <div className="font-bold">{item.company}</div>
+            <LinkedEntity
+              name={item.company}
+              url={item.url}
+              separateLinks={section.separateLinks}
+              className="font-bold"
+            />
             <div>{item.position}</div>
           </div>
 
@@ -255,7 +283,12 @@ const Education = () => {
       {(item) => (
         <div className="flex items-start justify-between">
           <div className="text-left">
-            <div className="font-bold">{item.institution}</div>
+            <LinkedEntity
+              name={item.institution}
+              url={item.url}
+              separateLinks={section.separateLinks}
+              className="font-bold"
+            />
             <div>{item.area}</div>
             <div>{item.score}</div>
           </div>
@@ -279,7 +312,11 @@ const Awards = () => {
         <div className="flex items-start justify-between">
           <div className="text-left">
             <div className="font-bold">{item.title}</div>
-            <div>{item.awarder}</div>
+            <LinkedEntity
+              name={item.awarder}
+              url={item.url}
+              separateLinks={section.separateLinks}
+            />
           </div>
 
           <div className="shrink-0 text-right">
@@ -300,7 +337,7 @@ const Certifications = () => {
         <div className="flex items-start justify-between">
           <div className="text-left">
             <div className="font-bold">{item.name}</div>
-            <div>{item.issuer}</div>
+            <LinkedEntity name={item.issuer} url={item.url} separateLinks={section.separateLinks} />
           </div>
 
           <div className="shrink-0 text-right">
@@ -345,7 +382,12 @@ const Publications = () => {
       {(item) => (
         <div className="flex items-start justify-between">
           <div className="text-left">
-            <div className="font-bold">{item.name}</div>
+            <LinkedEntity
+              name={item.name}
+              url={item.url}
+              separateLinks={section.separateLinks}
+              className="font-bold"
+            />
             <div>{item.publisher}</div>
           </div>
 
@@ -366,7 +408,12 @@ const Volunteer = () => {
       {(item) => (
         <div className="flex items-start justify-between">
           <div className="text-left">
-            <div className="font-bold">{item.organization}</div>
+            <LinkedEntity
+              name={item.organization}
+              url={item.url}
+              separateLinks={section.separateLinks}
+              className="font-bold"
+            />
             <div>{item.position}</div>
           </div>
 
@@ -403,7 +450,12 @@ const Projects = () => {
       {(item) => (
         <div className="flex items-start justify-between">
           <div className="text-left">
-            <div className="font-bold">{item.name}</div>
+            <LinkedEntity
+              name={item.name}
+              url={item.url}
+              separateLinks={section.separateLinks}
+              className="font-bold"
+            />
             <div>{item.description}</div>
           </div>
 
@@ -423,7 +475,12 @@ const References = () => {
     <Section<Reference> section={section} urlKey="url" summaryKey="summary">
       {(item) => (
         <div>
-          <div className="font-bold">{item.name}</div>
+          <LinkedEntity
+            name={item.name}
+            url={item.url}
+            separateLinks={section.separateLinks}
+            className="font-bold"
+          />
           <div>{item.description}</div>
         </div>
       )}
@@ -444,7 +501,12 @@ const Custom = ({ id }: { id: string }) => {
       {(item) => (
         <div className="flex items-start justify-between">
           <div className="text-left">
-            <div className="font-bold">{item.name}</div>
+            <LinkedEntity
+              name={item.name}
+              url={item.url}
+              separateLinks={section.separateLinks}
+              className="font-bold"
+            />
             <div>{item.description}</div>
           </div>
 
